@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VisionCraft Admin | لوحة التحكم</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@800&family=Reem+Kufi:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background: radial-gradient(circle at 50% -10%, #1a1a1a 0%, #050505 100%);
+            background-attachment: fixed;
+            color: white;
+            font-family: 'Reem Kufi', sans-serif;
+            min-height: 100vh;
+            font-weight: 400;
+        }
+        .glass {
+            background: rgba(10, 10, 10, 0.8) !important;
+            backdrop-filter: blur(30px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.8);
+        }
+        .neon-card {
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
+            position: relative;
+            overflow: hidden;
+        }
+        .neon-card:hover {
+            border-left-color: #ff2e2e;
+            background: rgba(255, 46, 46, 0.05);
+            box-shadow: 0 0 25px rgba(255, 46, 46, 0.2);
+        }
+        .en { font-family: 'Plus Jakarta Sans', sans-serif; }
+    </style>
+</head>
+<body class="p-8">
+    <div class="max-w-6xl mx-auto">
+        <header class="flex justify-between items-center mb-16">
+            <div>
+                <h1 class="text-4xl font-black mb-2">لوحة تحكم <span class="text-red-600">الشركاء</span></h1>
+                <p class="text-gray-500">متابعة الرؤى والطلبات الجديدة</p>
+            </div>
+            <div class="p-4 glass rounded-2xl flex items-center gap-4">
+                <span id="count" class="text-4xl font-black en text-red-500">0</span>
+                <span class="text-xs text-gray-400 uppercase tracking-widest">طلبات نشطة</span>
+            </div>
+        </header>
+
+        <div id="submissionsList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Submissions will load here -->
+            <div class="col-span-full text-center py-20 opacity-50">جاري الاتصال بقاعدة البيانات الأسطورية...</div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getDatabase, ref, onValue, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyA2aes3jehRns0bgoIzrjzaFycOLMJkbv4",
+            authDomain: "boardd-259a4.firebaseapp.com",
+            databaseURL: "https://boardd-259a4-default-rtdb.firebaseio.com",
+            projectId: "boardd-259a4",
+            storageBucket: "boardd-259a4.firebasestorage.app",
+            messagingSenderId: "192479881041",
+            appId: "1:192479881041:web:d8f62c6e707dd8cee89570",
+            measurementId: "G-1XZ7FSJWTR"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+        const db = getDatabase(app);
+        const listDiv = document.getElementById('submissionsList');
+        const countEl = document.getElementById('count');
+
+        onValue(ref(db, 'submissions'), (snapshot) => {
+            const data = snapshot.val();
+            listDiv.innerHTML = '';
+            
+            if (!data) {
+                listDiv.innerHTML = '<div class="col-span-full text-center py-20 opacity-50">لا توجد طلبات جديدة حالياً.</div>';
+                countEl.innerText = '0';
+                return;
+            }
+
+            const entries = Object.entries(data).reverse();
+            countEl.innerText = entries.length;
+
+            entries.forEach(([id, item]) => {
+                const date = new Date(item.timestamp).toLocaleString('ar-EG', {
+                    year: 'numeric', month: 'short', day: 'numeric',
+                    hour: '2-digit', minute: '2-digit'
+                });
+                const card = `
+                    <div class="glass p-8 rounded-[2rem] neon-card relative group flex flex-col justify-between">
+                        <button onclick="window.deleteItem('${id}')" class="absolute top-6 left-6 p-2 rounded-full bg-red-900/20 text-gray-400 hover:text-red-500 hover:bg-red-900/50 transition-all">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                        </button>
+                        <div class="mb-8">
+                            <span class="text-[10px] text-red-500 font-bold uppercase tracking-widest en block mb-2">${date}</span>
+                            <h3 class="text-3xl font-black mt-2 leading-tight">${item.name}</h3>
+                        </div>
+                        <div class="space-y-4 mb-10">
+                            <div class="flex justify-between items-center border-b border-white/5 pb-2">
+                                <span class="text-gray-500 text-sm">المشروع</span>
+                                <span class="font-bold text-white">${item.project}</span>
+                            </div>
+                            <div class="flex justify-between items-center border-b border-white/5 pb-2">
+                                <span class="text-gray-500 text-sm">الهاتف</span>
+                                <span class="font-bold en text-white">${item.phone}</span>
+                            </div>
+                            <div class="flex justify-between items-center border-b border-white/5 pb-2">
+                                <span class="text-gray-500 text-sm">العمر</span>
+                                <span class="font-bold en text-white">${item.age}</span>
+                            </div>
+                        </div>
+                        <div class="flex-grow">
+                            <p class="text-gray-400 text-sm leading-relaxed">${item.message}</p>
+                        </div>
+                    </div>
+                `;
+                listDiv.innerHTML += card;
+            });
+        });
+
+        window.deleteItem = (id) => {
+            if(confirm('هل تريد مسح هذا الطلب الأسطوري؟')) {
+                remove(ref(db, `submissions/${id}`));
+            }
+        };
+    </script>
+</body>
+</html>
