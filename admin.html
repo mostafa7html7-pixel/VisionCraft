@@ -5,46 +5,52 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VisionCraft Admin | لوحة التحكم</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@800&family=Reem+Kufi:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;700;800&family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         body {
             background: radial-gradient(circle at 50% -10%, #1a1a1a 0%, #050505 100%);
             background-attachment: fixed;
             color: white;
-            font-family: 'Reem Kufi', sans-serif;
+            font-family: 'Cairo', sans-serif;
             min-height: 100vh;
-            font-weight: 400;
+            font-weight: 500;
         }
         .glass {
-            background: rgba(10, 10, 10, 0.8) !important;
+            background: rgba(15, 15, 15, 0.9) !important;
             backdrop-filter: blur(30px) saturate(180%);
             border: 1px solid rgba(255, 255, 255, 0.08);
             box-shadow: 0 4px 30px rgba(0, 0, 0, 0.8);
         }
         .neon-card {
             transition: all 0.3s ease;
-            border-left: 4px solid transparent;
+            border-top: 4px solid transparent;
             position: relative;
             overflow: hidden;
         }
         .neon-card:hover {
-            border-left-color: #ff2e2e;
+            border-top-color: #ff2e2e;
             background: rgba(255, 46, 46, 0.05);
             box-shadow: 0 0 25px rgba(255, 46, 46, 0.2);
         }
-        .en { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .en { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; }
     </style>
 </head>
 <body class="p-8">
-    <div class="max-w-6xl mx-auto">
-        <header class="flex justify-between items-center mb-16">
+    <div class="max-w-7xl mx-auto">
+        <header class="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-16 gap-8 sticky top-0 z-50 bg-black/50 py-6 backdrop-blur-md">
             <div>
-                <h1 class="text-4xl font-black mb-2">لوحة تحكم <span class="text-red-600">الشركاء</span></h1>
-                <p class="text-gray-500">متابعة الرؤى والطلبات الجديدة</p>
+                <h1 class="text-5xl font-black mb-2 tracking-tighter">لوحة تحكم <span class="text-red-600 italic">الشركاء</span></h1>
+                <p class="text-gray-400 font-bold">إدارة ميثاق الإبداع والرؤى المستقبلية</p>
             </div>
-            <div class="p-4 glass rounded-2xl flex items-center gap-4">
-                <span id="count" class="text-4xl font-black en text-red-500">0</span>
-                <span class="text-xs text-gray-400 uppercase tracking-widest">طلبات نشطة</span>
+            <div class="flex flex-col sm:flex-row items-center gap-6 w-full lg:w-auto">
+                <div class="relative w-full sm:w-auto flex-grow md:flex-grow-0">
+                    <input type="text" id="searchInput" placeholder="بحث عن عميل أو مشروع..." 
+                           class="bg-white/5 border border-white/10 rounded-xl px-6 py-4 w-full sm:w-80 focus:border-red-500 outline-none transition-all placeholder:text-gray-600">
+                </div>
+                <div class="p-4 glass rounded-2xl flex items-center gap-4 w-full sm:w-auto justify-center">
+                    <span id="count" class="text-4xl font-black en text-red-500">0</span>
+                    <span class="text-xs text-gray-400 uppercase tracking-widest">طلبات</span>
+                </div>
             </div>
         </header>
 
@@ -75,20 +81,16 @@
         const db = getDatabase(app);
         const listDiv = document.getElementById('submissionsList');
         const countEl = document.getElementById('count');
+        const searchInput = document.getElementById('searchInput');
+        let allSubmissions = [];
 
-        onValue(ref(db, 'submissions'), (snapshot) => {
-            const data = snapshot.val();
-            listDiv.innerHTML = '';
-            
-            if (!data) {
+        function renderSubmissions(entries) {
+            if (entries.length === 0) {
                 listDiv.innerHTML = '<div class="col-span-full text-center py-20 opacity-50">لا توجد طلبات جديدة حالياً.</div>';
-                countEl.innerText = '0';
                 return;
             }
 
-            const entries = Object.entries(data).reverse();
-            countEl.innerText = entries.length;
-
+            let htmlContent = '';
             entries.forEach(([id, item]) => {
                 const date = new Date(item.timestamp).toLocaleString('ar-EG', {
                     year: 'numeric', month: 'short', day: 'numeric',
@@ -99,31 +101,60 @@
                         <button onclick="window.deleteItem('${id}')" class="absolute top-6 left-6 p-2 rounded-full bg-red-900/20 text-gray-400 hover:text-red-500 hover:bg-red-900/50 transition-all">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                         </button>
-                        <div class="mb-8">
-                            <span class="text-[10px] text-red-500 font-bold uppercase tracking-widest en block mb-2">${date}</span>
-                            <h3 class="text-3xl font-black mt-2 leading-tight">${item.name}</h3>
+                        <div class="mb-6">
+                            <span class="text-[11px] text-red-500 font-black uppercase tracking-widest en block mb-2 opacity-80">${date}</span>
+                            <h3 class="text-4xl font-black mt-1 leading-tight text-white">${item.name}</h3>
                         </div>
-                        <div class="space-y-4 mb-10">
-                            <div class="flex justify-between items-center border-b border-white/5 pb-2">
-                                <span class="text-gray-500 text-sm">المشروع</span>
-                                <span class="font-bold text-white">${item.project}</span>
+                        ${item.services ? `
+                        <div class="mb-8 flex flex-wrap gap-2">
+                            <span class="text-[11px] text-yellow-500/50 font-black uppercase w-full mb-2">ARCHIVED SERVICES:</span>
+                            ${item.services.map(s => `
+                                <span class="bg-white/5 text-white text-[11px] px-4 py-1.5 rounded-lg border border-white/10 font-bold">${s}</span>
+                            `).join('')}
+                        </div>
+                        ` : ''}
+                        <div class="space-y-3 mb-8 bg-black/40 p-5 rounded-2xl border border-white/5">
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-500 text-xs font-bold uppercase tracking-tighter">PROJECT</span>
+                                <span class="font-black text-red-500 text-lg">${item.project}</span>
                             </div>
-                            <div class="flex justify-between items-center border-b border-white/5 pb-2">
-                                <span class="text-gray-500 text-sm">الهاتف</span>
-                                <span class="font-bold en text-white">${item.phone}</span>
+                            <div class="flex justify-between items-center border-t border-white/5 pt-3">
+                                <span class="text-gray-500 text-xs font-bold uppercase tracking-tighter">CONTACT</span>
+                                <div class="flex items-center gap-3">
+                                    <button onclick="navigator.clipboard.writeText('${item.phone}')" class="text-[10px] bg-red-600/20 text-red-400 px-3 py-1 rounded-md hover:bg-red-600 hover:text-white transition-all font-black uppercase">Copy</button>
+                                    <span class="font-black en text-white tracking-widest">${item.phone}</span>
+                                </div>
                             </div>
-                            <div class="flex justify-between items-center border-b border-white/5 pb-2">
-                                <span class="text-gray-500 text-sm">العمر</span>
-                                <span class="font-bold en text-white">${item.age}</span>
+                            <div class="flex justify-between items-center border-t border-white/5 pt-3">
+                                <span class="text-gray-500 text-xs font-bold uppercase tracking-tighter">EXPERIENCE / AGE</span>
+                                <span class="font-black en text-yellow-500">${item.age} YEARS</span>
                             </div>
                         </div>
                         <div class="flex-grow">
-                            <p class="text-gray-400 text-sm leading-relaxed">${item.message}</p>
+                            <p class="text-gray-300 text-sm leading-relaxed font-medium bg-white/5 p-4 rounded-xl italic">"${item.message}"</p>
                         </div>
                     </div>
                 `;
-                listDiv.innerHTML += card;
+                htmlContent += card;
             });
+            listDiv.innerHTML = htmlContent;
+        }
+
+        onValue(ref(db, 'submissions'), (snapshot) => {
+            const data = snapshot.val();
+            allSubmissions = data ? Object.entries(data).reverse() : [];
+            countEl.innerText = allSubmissions.length;
+            renderSubmissions(allSubmissions);
+        });
+
+        searchInput.addEventListener('input', (e) => {
+            const term = e.target.value.toLowerCase();
+            const filtered = allSubmissions.filter(([id, item]) => 
+                item.name.toLowerCase().includes(term) || 
+                item.project.toLowerCase().includes(term) ||
+                item.phone.includes(term)
+            );
+            renderSubmissions(filtered);
         });
 
         window.deleteItem = (id) => {

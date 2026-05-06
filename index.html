@@ -13,7 +13,7 @@
       gtag('config', 'G-1XZ7FSJWTR');
     </script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@200;400;700;800&family=Reem+Kufi:wght@400;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@200;400;700;800&family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
     <!-- Preload Critical Assets for Instant Appearance -->
     <link rel="preload" href="https://res.cloudinary.com/dzwrz9qzb/video/upload/v1777585445/WhatsApp_Video_2026-05-01_at_12.22.58_AM_dhduh3.mp4" as="video" fetchpriority="high">
     <link rel="preload" href="Ninja%20Warrior.jfif" as="image" fetchpriority="high">
@@ -30,7 +30,7 @@
             --neon-border: rgba(212, 175, 55, 0.4);
             --dark: #050505;
             --font-en: 'Plus Jakarta Sans', sans-serif;
-            --font-ar: 'Reem Kufi', sans-serif;
+            --font-ar: 'Cairo', sans-serif;
         }
 
         body {
@@ -61,7 +61,10 @@
             backdrop-filter: blur(40px) saturate(200%);
             border: 1px solid var(--neon-border);
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.9), 0 0 20px rgba(212, 175, 55, 0.05);
-            contain: layout paint; /* Optimize rendering performance */
+            contain: layout paint;
+            will-change: transform;
+            transform: translateZ(0); /* Force GPU acceleration for stability */
+            backface-visibility: hidden;
         }
 
         /* Section Reveal Animation */
@@ -69,6 +72,19 @@
             opacity: 0;
             transform: translateY(30px) scale(0.98);
             transition: opacity 1.2s cubic-bezier(0.2, 1, 0.3, 1), transform 1.2s cubic-bezier(0.2, 1, 0.3, 1);
+            will-change: transform, opacity;
+        }
+        
+        .reveal-left {
+            opacity: 0;
+            transform: translateX(-150px) scale(0.95);
+            transition: all 1.2s cubic-bezier(0.165, 0.84, 0.44, 1);
+            will-change: transform, opacity;
+        }
+        .reveal-right {
+            opacity: 0;
+            transform: translateX(150px) scale(0.95);
+            transition: all 1.2s cubic-bezier(0.165, 0.84, 0.44, 1);
             will-change: transform, opacity;
         }
 
@@ -80,9 +96,11 @@
         }
         @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
 
-        .reveal.active {
+        .reveal.active,
+        .reveal-left.active,
+        .reveal-right.active {
             opacity: 1;
-            transform: translateY(0) scale(1);
+            transform: translateY(0) translateX(0) scale(1);
             filter: drop-shadow(0 0 10px var(--neon-glow));
         }
         
@@ -98,8 +116,11 @@
 
         /* Image Hover Effect */
         .portfolio-card img {
-            transition: transform 1.2s cubic-bezier(0.19, 1, 0.22, 1);
-            will-change: transform; /* Hint to browser for scroll-linked effects */
+            transition: transform 0.8s cubic-bezier(0.165, 0.84, 0.44, 1);
+            will-change: transform;
+            backface-visibility: hidden;
+            transform-style: preserve-3d;
+            image-rendering: -webkit-optimize-contrast;
         }
 
         .portfolio-card:hover img {
@@ -114,7 +135,7 @@
 
         /* Architectural Hollywood Style Text */
         .hero-title {
-            font-size: clamp(2.5rem, 12vw, 160px);
+            font-size: clamp(2.2rem, 10vw, 150px);
             line-height: 0.9;
             perspective: 1000px;
             filter: drop-shadow(0 20px 40px rgba(0,0,0,0.6));
@@ -242,12 +263,12 @@
         .lightning-frame::before {
             content: '';
             position: absolute;
-            width: 150%;
-            height: 150%;
+            width: 200%;
+            height: 200%;
             top: -50%; left: -50%;
-            background: conic-gradient(from 0deg, transparent 0%, #fff 1%, #ff2e2e 4%, transparent 12%);
-            animation: lightning-rotate 2s linear infinite;
-            z-index: 0;
+            background: conic-gradient(from 0deg, transparent 0%, rgba(255,255,255,0.2) 1%, rgba(255,46,46,0.5) 4%, transparent 15%);
+            animation: lightning-rotate 12s linear infinite; /* Slowed down significantly */
+            z-index: -1; /* Moves behind the border and content */
             will-change: transform;
         }
 
@@ -298,14 +319,22 @@
             from { opacity: 0; } to { opacity: 1; }
         }
 
-        /* Legendary News Ticker Style */
+        /* News Ticker Layout Fix - Prevents mobile horizontal scroll */
+        .ticker-container {
+            width: 100%;
+            overflow: hidden;
+            position: relative;
+            padding: 2.5rem 0; /* Creates buffer space for the tilt */
+            contain: paint;
+        }
+
         .ticker-slant-wrap {
-            width: 110vw;
-            margin-left: -5vw;
+            width: 150%;
+            margin-left: -25%;
             background: linear-gradient(90deg, #600 0%, #ff2e2e 50%, #600 100%);
             padding: 1.5rem 0;
             transform: rotate(-2deg);
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), inset 0 0 30px rgba(0,0,0,0.3);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4), inset 0 0 30px rgba(0,0,0,0.3);
             border-top: 2px solid rgba(255, 255, 255, 0.1);
             border-bottom: 2px solid rgba(255, 255, 255, 0.1);
             z-index: 40;
@@ -329,18 +358,202 @@
             100% { transform: translateX(-50%); }
         }
         @media (max-width: 768px) {
-            .ticker-slant-wrap { 
-                padding: 1rem 0;
-                width: 120vw;
-                margin-left: -10vw;
-            }
+            .ticker-slant-wrap { width: 180%; margin-left: -40%; }
             .ticker-content {
                 animation-duration: 20s;
             }
         }
+        /* Scroll Progress Bar */
+        #scroll-progress {
+            position: fixed;
+            top: 0; left: 0;
+            height: 4px;
+            background: linear-gradient(to right, var(--red-cta), var(--gold));
+            z-index: 2000;
+            width: 0%;
+            transition: width 0.1s ease-out;
+        }
+
+        /* Legendary Service Card Styles */
+        .service-card-fire {
+            position: relative;
+            transition: all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Elastic "Eggplant" Motion */
+            border: 1px solid rgba(255, 46, 46, 0.1);
+            background: #000;
+            will-change: transform, box-shadow;
+            transform-style: preserve-3d;
+        }
+        .service-card-fire:hover {
+            transform: translateY(-25px) scale(1.05) rotateX(8deg) rotateY(-5deg);
+            border-color: var(--red-cta);
+            box-shadow: 0 40px 100px rgba(255, 46, 46, 0.3), 0 0 40px rgba(255, 46, 46, 0.2);
+            z-index: 50;
+        }
+        .service-card-fire:hover .service-icon {
+            filter: drop-shadow(0 0 25px var(--red-cta)) brightness(1.5);
+            transform: scale(1.2) rotate(15deg) translateZ(50px);
+        }
+        .service-card-fire h3 {
+            transition: all 0.4s ease;
+        }
+        .service-card-fire:hover h3 {
+            letter-spacing: 0.05em;
+            text-shadow: 0 0 15px rgba(255, 46, 46, 0.6);
+        }
+
+        /* Suggestions Accordion Styling */
+        .accordion-item {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            will-change: height;
+        }
+        .accordion-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.25rem 2rem;
+            cursor: pointer;
+            font-size: 1.25rem;
+            font-weight: 900;
+            color: white;
+            transition: background 0.2s ease;
+            user-select: none;
+            will-change: background;
+        }
+        .accordion-header:hover {
+            background: rgba(255, 255, 255, 0.03);
+        }
+        .accordion-icon {
+            transition: transform 0.3s ease;
+            will-change: transform;
+        }
+        .accordion-item.active .accordion-icon {
+            transform: rotate(90deg);
+        }
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease-out, padding 0.4s ease-out;
+            padding: 0 1.5rem; /* Adjusted padding for chips */
+            will-change: max-height;
+        }
+        .accordion-item.active .accordion-content {
+            max-height: 500px; /* Increased max-height for more content */
+            padding-bottom: 1.25rem;
+        }
+
+        /* Suggestion Chip Styling */
+        .suggestion-chip {
+            transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease, transform 0.15s ease; /* Faster transitions */
+            cursor: pointer;
+            user-select: none;
+            border: 2px solid rgba(255, 255, 255, 0.08); /* Slightly less transparent border */
+            font-size: 0.95rem;
+            background: rgba(20, 20, 20, 0.4); /* Slightly darker background */
+            color: #999;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.8rem 1.6rem; /* Adjusted padding */
+            border-radius: 0.75rem; /* Rounded rectangle/square shape */
+            will-change: transform, border-color, background, color;
+        }
+        .suggestion-chip.selected {
+            border-color: var(--red-cta);
+            color: white;
+            background: transparent; /* No background fill, only border */
+            border-width: 3px; /* Thicker border for selected */
+            transform: translateY(-2px); /* Slight lift on select */
+        }
+        .suggestion-chip:hover:not(.selected) {
+            border-color: rgba(255, 255, 255, 0.4);
+            color: white;
+            transform: translateY(-1px); /* Subtle lift on hover */
+        }
+
+        /* New Legendary Container Style */
+        .legendary-container {
+            background: rgba(10, 10, 10, 0.9) !important; /* Slightly darker background */
+            backdrop-filter: blur(50px) saturate(200%); /* More blur */
+            border: 1px solid rgba(255, 255, 255, 0.06); /* Thinner, more subtle border for stability */
+            box-shadow: 
+                0 6px 25px rgba(0, 0, 0, 0.6), /* Deeper main shadow, less spread */
+                0 0 20px rgba(212, 175, 55, 0.03), /* Subtle gold accent glow, less intense */
+                inset 0 0 8px rgba(255, 255, 255, 0.005); /* Inner light for depth, less intense */
+            contain: layout paint;
+            will-change: transform, box-shadow;
+            transform: translateZ(0); /* Force GPU acceleration */
+            backface-visibility: hidden;
+            transition: all 0.6s cubic-bezier(0.2, 1, 0.3, 1); /* Smooth transitions */
+        }
+        .legendary-container:hover {
+            /* Removed translateY and scale for stability */
+            box-shadow: 
+                0 10px 40px rgba(0, 0, 0, 0.8), /* Slightly more intense shadow on hover */
+                0 0 30px rgba(212, 175, 55, 0.06),
+                inset 0 0 20px rgba(255, 255, 255, 0.03);
+            border-color: rgba(255, 255, 255, 0.15); /* Slightly more visible border on hover */
+        }
+
+        /* Celebration Effect for Selected Chips */
+        @keyframes chip-celebrate-pulse {
+            0% { box-shadow: 0 0 0px rgba(255, 46, 46, 0.5); transform: scale(1); }
+            50% { box-shadow: 0 0 15px rgba(255, 46, 46, 0.8); transform: scale(1.05); }
+            100% { box-shadow: 0 0 0px rgba(255, 46, 46, 0.5); transform: scale(1); }
+        }
+        .suggestion-chip.selected.celebrate {
+            animation: chip-celebrate-pulse 0.5s ease-out forwards;
+        }
+
+        /* Input focus glow */
+        .input-cyber:focus {
+            border-color: var(--red-cta);
+            box-shadow: 0 0 15px rgba(255, 46, 46, 0.3), inset 0 0 5px rgba(255, 46, 46, 0.1); /* More refined glow */
+            background: rgba(255, 255, 255, 0.05);
+            outline: none;
+        }
+        .input-cyber::placeholder {
+            color: rgba(255, 255, 255, 0.3);
+            transition: color 0.3s ease;
+        }
+
+        /* Adjust label size for consistency */
+        .form-field label {
+            font-size: 0.875rem; /* text-sm */
+        }
+
+        /* Ensure form fields have consistent height */
+        .input-cyber {
+            min-height: 56px; /* A fixed height for inputs and textarea to ensure visual balance */
+        }
+
+        /* Legendary Right Border for Headers */
+        .legendary-border-right {
+            position: relative;
+        }
+        .legendary-border-right::before {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px; /* Thickness of the border */
+            background: linear-gradient(to bottom, var(--red-cta), var(--gold-bright)); /* Gradient from red to gold */
+            border-radius: 2px; /* Soften the edges */
+            box-shadow: 0 0 10px rgba(255, 46, 46, 0.3); /* Subtle glow */
+        }
+        .accordion-item.active .accordion-header {
+            background: rgba(255, 46, 46, 0.1); /* Red tint when active */
+            color: var(--red-cta); /* Red text when active */
+        }
+
+        .selected-chip-close {
+            margin-right: 0.5rem; /* Space between text and close icon */
+        }
     </style>
 </head>
 <body class="selection:bg-yellow-500 selection:text-black">
+    <div id="scroll-progress"></div>
     <!-- Legendary Intro Screen Overlay -->
     <div id="intro-screen">
         <div id="intro-text-container">
@@ -440,25 +653,27 @@
     </section>
 
     <!-- Legendary News Ticker Section -->
-    <div class="ticker-slant-wrap">
-        <div class="ticker-content">
-            <!-- المجموعة الأولى: تحتوي على النص مكرراً عدة مرات لملء عرض الشاشة -->
-            <div class="flex-shrink-0 flex items-center">
-                <span class="text-white font-black text-2xl md:text-4xl px-4 uppercase tracking-tighter italic">
-                    ✦ مـرحـبـاً بـكـم فـي VisionCraft ✦ مـسـتـقـبـل الـتـصـمـيـم بـيـن يـديـك ✦ ابـدأ الآن بـبـنـاء هـويـتـك الأسطورية ✦ 100% CREATIVITY ✦ ELITE DESIGN REVOLUTION ✦ رؤيـتـك.. إبـداعـنـا.. نـجـاحـك الـمـطـلـق ✦
-                </span>
-                <span class="text-white font-black text-2xl md:text-4xl px-4 uppercase tracking-tighter italic">
-                    ✦ مـرحـبـاً بـكـم فـي VisionCraft ✦ مـسـتـقـبـل الـتـصـمـيـم بـيـن يـديـك ✦ ابـدأ الآن بـبـنـاء هـويـتـك الأسطورية ✦ 100% CREATIVITY ✦ ELITE DESIGN REVOLUTION ✦ رؤيـتـك.. إبـداعـنـا.. نـجـاحـك الـمـطـلـق ✦
-                </span>
-            </div>
-            <!-- المجموعة الثانية: نسخة طبق الأصل تماماً لضمان حلقة تكرار لا نهائية وسلسة -->
-            <div class="flex-shrink-0 flex items-center">
-                <span class="text-white font-black text-2xl md:text-4xl px-4 uppercase tracking-tighter italic">
-                    ✦ مـرحـبـاً بـكـم فـي VisionCraft ✦ مـسـتـقـبـل الـتـصـمـيـم بـيـن يـديـك ✦ ابـدأ الآن بـبـنـاء هـويـتـك الأسطورية ✦ 100% CREATIVITY ✦ ELITE DESIGN REVOLUTION ✦ رؤيـتـك.. إبـداعـنـا.. نـجـاحـك الـمـطـلـق ✦
-                </span>
-                <span class="text-white font-black text-2xl md:text-4xl px-4 uppercase tracking-tighter italic">
-                    ✦ مـرحـبـاً بـكـم فـي VisionCraft ✦ مـسـتـقـبـل الـتـصـمـيـم بـيـن يـديـك ✦ ابـدأ الآن بـبـنـاء هـويـتـك الأسطورية ✦ 100% CREATIVITY ✦ ELITE DESIGN REVOLUTION ✦ رؤيـتـك.. إبـداعـنـا.. نـجـاحـك الـمـطـلـق ✦
-                </span>
+    <div class="ticker-container">
+        <div class="ticker-slant-wrap">
+            <div class="ticker-content">
+                <!-- المجموعة الأولى: تحتوي على النص مكرراً عدة مرات لملء عرض الشاشة -->
+                <div class="flex-shrink-0 flex items-center">
+                    <span class="text-white font-black text-2xl md:text-4xl px-4 uppercase tracking-tighter italic">
+                        ✦ مـرحـبـاً بـكـم فـي VisionCraft ✦ مـسـتـقـبـل الـتـصـمـيـم بـيـن يـديـك ✦ ابـدأ الآن بـبـنـاء هـويـتـك الأسطورية ✦ 100% CREATIVITY ✦ ELITE DESIGN REVOLUTION ✦ رؤيـتـك.. إبـداعـنـا.. نـجـاحـك الـمـطـلـق ✦
+                    </span>
+                    <span class="text-white font-black text-2xl md:text-4xl px-4 uppercase tracking-tighter italic">
+                        ✦ مـرحـبـاً بـكـم فـي VisionCraft ✦ مـسـتـقـبـل الـتـصـمـيـم بـيـن يـديـك ✦ ابـدأ الآن بـب -نـاء هـويـتـك الأسطورية ✦ 100% CREATIVITY ✦ ELITE DESIGN REVOLUTION ✦ رؤيـتـك.. إبـداعـنـا.. نـجـاحـك الـمـطـلـق ✦
+                    </span>
+                </div>
+                <!-- المجموعة الثانية: نسخة طبق الأصل تماماً لضمان حلقة تكرار لا نهائية وسلسة -->
+                <div class="flex-shrink-0 flex items-center">
+                    <span class="text-white font-black text-2xl md:text-4xl px-4 uppercase tracking-tighter italic">
+                        ✦ مـرحـبـاً بـكـم فـي VisionCraft ✦ مـسـتـقـبـل الـتـصـمـي -م بـيـن يـديـك ✦ ابـدأ الآن بـبـنـاء هـويـتـك الأسطورية ✦ 100% CREATIVITY ✦ ELITE DESIGN REVOLUTION ✦ رؤيـتـك.. إبـداعـنـا.. نـجـاحـك الـمـطـلـق ✦
+                    </span>
+                    <span class="text-white font-black text-2xl md:text-4xl px-4 uppercase tracking-tighter italic">
+                        ✦ مـرحـبـاً بـكـم فـي VisionCraft ✦ مـسـتـقـبـل الـتـصـمـيـم بـيـن يـديـك ✦ ابـدأ الآن بـبـنـاء هـويـتـك الأسطورية ✦ 100% CREATIVITY ✦ ELITE DESIGN REVOLUTION ✦ رؤيـتـك.. إبـداعـنـا.. نـجـاحـك الـمـطـلـق ✦
+                    </span>
+                </div>
             </div>
         </div>
     </div>
@@ -476,224 +691,120 @@
         </div>
     </section>
 
-    <!-- Portfolio Section -->
-    <section id="portfolio" class="py-40 px-6 max-w-7xl mx-auto">
-        <div class="flex flex-col md:flex-row justify-between items-end mb-24 reveal">
-            <div>
-                <h2 class="text-7xl md:text-9xl font-black mb-6 en tracking-tighter uppercase">Gallery</h2>
-                <p class="text-gray-400 text-2xl font-medium max-w-lg">مجموعة مختارة من التصاميم التي غيرت وجه الأسواق.</p>
-            </div>
-            <div class="hidden md:block w-32 h-1 bg-yellow-500 mb-4"></div>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
-            <!-- 1. Ninja Warrior - High Impact Start -->
-            <div class="portfolio-card relative group aspect-[4/5] overflow-hidden rounded-[50px] reveal cursor-zoom-in">
-                <img src="Ninja%20Warrior.jfif" class="w-full h-full object-contain" alt="Ninja Warrior" fetchpriority="high" decoding="async" style="content-visibility: auto;">
-                <div class="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent opacity-90 transition-opacity group-hover:opacity-100"></div>
-                <div class="absolute bottom-12 right-12 text-right">
-                    <span class="text-yellow-500 font-black uppercase text-xs tracking-widest en">Legendary Concept</span>
-                    <h3 class="text-4xl font-black mt-2">Ninja Warrior</h3>
-                </div>
+    <!-- Design Showcase Gallery Section -->
+    <section id="design-showcase-gallery" class="py-20 md:py-32 px-6">
+        <div class="max-w-6xl mx-auto">
+            <div class="text-center mb-16 reveal">
+                <h2 class="text-5xl md:text-7xl font-black en tracking-tighter leading-none mb-4 text-gradient">OUR <span class="text-gradient">MASTERPIECES.</span></h2>
+                <p class="text-gray-400 text-lg uppercase tracking-[0.3em] neon-text">استكشف عالم الإبداع الذي نصنعه</p>
             </div>
 
-            <!-- 2. Jujutsu Kaisen Poster -->
-            <div class="portfolio-card relative group aspect-[4/5] overflow-hidden rounded-[50px] reveal cursor-zoom-in" style="transition-delay: 0.2s;">
-                <img src="download.webp" class="w-full h-full object-contain" alt="Jujutsu Kaisen" fetchpriority="high" decoding="async" style="content-visibility: auto;">
-                <div class="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent opacity-90 transition-opacity group-hover:opacity-100"></div>
-                <div class="absolute bottom-12 right-12 text-right">
-                    <span class="text-yellow-500 font-black uppercase text-xs tracking-widest en">Anime Poster</span>
-                    <h3 class="text-4xl font-black mt-2">Jujutsu Kaisen</h3>
-                </div>
-            </div>
-
-            <!-- 3. Thomas Shelby Photo -->
-            <div class="portfolio-card relative group aspect-[4/5] overflow-hidden rounded-[50px] reveal cursor-zoom-in">
-                <img src="download1.webp" class="w-full h-full object-contain" alt="Thomas Shelby" loading="lazy" decoding="async">
-                <div class="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent opacity-90 transition-opacity group-hover:opacity-100"></div>
-                <div class="absolute bottom-12 right-12 text-right">
-                    <span class="text-yellow-500 font-black uppercase text-xs tracking-widest en">Cinematic Photo</span>
-                    <h3 class="text-4xl font-black mt-2">Thomas Shelby</h3>
-                </div>
-            </div>
-
-            <!-- 4. Jerry 3D Art -->
-            <div class="portfolio-card relative group aspect-[4/5] overflow-hidden rounded-[50px] reveal cursor-zoom-in" style="transition-delay: 0.2s;">
-                <img src="1234.webp" class="w-full h-full object-contain" alt="Jerry" loading="lazy" decoding="async">
-                <div class="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent opacity-90 transition-opacity group-hover:opacity-100"></div>
-                <div class="absolute bottom-12 right-12 text-right">
-                    <span class="text-yellow-500 font-black uppercase text-xs tracking-widest en">3D Character</span>
-                    <h3 class="text-4xl font-black mt-2">Jerry 3D Art</h3>
-                </div>
-            </div>
-
-            <!-- 5. Sukuna Soul Anime -->
-            <div class="portfolio-card relative group aspect-[4/5] overflow-hidden rounded-[50px] reveal cursor-zoom-in">
-                <img src="download.jfif" class="w-full h-full object-contain" alt="Sukuna" loading="lazy" decoding="async">
-                <div class="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent opacity-90 transition-opacity group-hover:opacity-100"></div>
-                <div class="absolute bottom-12 right-12 text-right">
-                    <span class="text-yellow-500 font-black uppercase text-xs tracking-widest en">Anime Illustration</span>
-                    <h3 class="text-4xl font-black mt-2">Sukuna Soul</h3>
-                </div>
-            </div>
-
-            <!-- 6. The Godfather Poster -->
-            <div class="portfolio-card relative group aspect-[4/5] overflow-hidden rounded-[50px] reveal cursor-zoom-in" style="transition-delay: 0.2s;">
-                <img src="Instagram.webp" class="w-full h-full object-contain" alt="The Godfather" loading="lazy" decoding="async">
-                <div class="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent opacity-90 transition-opacity group-hover:opacity-100"></div>
-                <div class="absolute bottom-12 right-12 text-right">
-                    <span class="text-yellow-500 font-black uppercase text-xs tracking-widest en">Classic Cinema</span>
-                    <h3 class="text-4xl font-black mt-2">The Godfather</h3>
-                </div>
-            </div>
-
-            <!-- 7. Shelby Sketch (B&W) -->
-            <div class="portfolio-card relative group aspect-[4/5] overflow-hidden rounded-[50px] reveal cursor-zoom-in">
-                <img src="123445.jfif" class="w-full h-full object-contain" alt="Shelby Sketch" loading="lazy" decoding="async">
-                <div class="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent opacity-90 transition-opacity group-hover:opacity-100"></div>
-                <div class="absolute bottom-12 right-12 text-right">
-                    <span class="text-yellow-500 font-black uppercase text-xs tracking-widest en">Artistic Sketch</span>
-                    <h3 class="text-4xl font-black mt-2">Thomas Shelby B&W</h3>
-                </div>
-            </div>
-
-            <!-- 8. Sharp Hunter Art -->
-            <div class="portfolio-card relative group aspect-[4/5] overflow-hidden rounded-[50px] reveal cursor-zoom-in" style="transition-delay: 0.2s;">
-                <img src="Hunter.jfif" class="w-full h-full object-contain" alt="Hunter" loading="lazy" decoding="async">
-                <div class="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent opacity-90 transition-opacity group-hover:opacity-100"></div>
-                <div class="absolute bottom-12 right-12 text-right">
-                    <span class="text-yellow-500 font-black uppercase text-xs tracking-widest en">Stylized Art</span>
-                    <h3 class="text-4xl font-black mt-2">Sharp Hunter</h3>
-                </div>
-            </div>
-
-            <!-- 9. Mystic Artist Face -->
-            <div class="portfolio-card relative group aspect-[4/5] overflow-hidden rounded-[50px] reveal cursor-zoom-in">
-                <img src="121212.webp" class="w-full h-full object-contain" alt="Artistic Face" loading="lazy" decoding="async">
-                <div class="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent opacity-90 transition-opacity group-hover:opacity-100"></div>
-                <div class="absolute bottom-12 right-12 text-right">
-                    <span class="text-yellow-500 font-black uppercase text-xs tracking-widest en">Digital Art</span>
-                    <h3 class="text-4xl font-black mt-2">Mystic Art</h3>
-                </div>
-            </div>
-
-            <!-- 10. Jack Sparrow -->
-            <div class="portfolio-card relative group aspect-[4/5] overflow-hidden rounded-[50px] reveal cursor-zoom-in" style="transition-delay: 0.2s;">
-                <img src="download%20(1).jfif" class="w-full h-full object-contain" alt="Jack Sparrow" loading="lazy" decoding="async">
-                <div class="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent opacity-90 transition-opacity group-hover:opacity-100"></div>
-                <div class="absolute bottom-12 right-12 text-right">
-                    <span class="text-yellow-500 font-black uppercase text-xs tracking-widest en">Character Portrait</span>
-                    <h3 class="text-4xl font-black mt-2">Jack Sparrow</h3>
-                </div>
-            </div>
-
-            <!-- 11. Modern Donald Duck -->
-            <div class="portfolio-card relative group aspect-[4/5] overflow-hidden rounded-[50px] reveal cursor-zoom-in">
-                <img src="download%20(1).webp" class="w-full h-full object-contain" alt="Donald Duck" loading="lazy" decoding="async">
-                <div class="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent opacity-90 transition-opacity group-hover:opacity-100"></div>
-                <div class="absolute bottom-12 right-12 text-right">
-                    <span class="text-yellow-500 font-black uppercase text-xs tracking-widest en">Modern Pop</span>
-                    <h3 class="text-4xl font-black mt-2">Donald Art</h3>
-                </div>
-            </div>
-
-            <!-- 12. Retro Collage Girl -->
-            <div class="portfolio-card relative group aspect-[4/5] overflow-hidden rounded-[50px] reveal cursor-zoom-in" style="transition-delay: 0.2s;">
-                <img src="download%20(2).jfif" class="w-full h-full object-contain" alt="Retro Girl" loading="lazy" decoding="async">
-                <div class="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent opacity-90 transition-opacity group-hover:opacity-100"></div>
-                <div class="absolute bottom-12 right-12 text-right">
-                    <span class="text-yellow-500 font-black uppercase text-xs tracking-widest en">Retro Collage</span>
-                    <h3 class="text-4xl font-black mt-2">Classic Soul</h3>
-                </div>
-            </div>
-
-            <!-- 13. Polka Dot Girl -->
-            <div class="portfolio-card relative group aspect-[4/5] overflow-hidden rounded-[50px] reveal cursor-zoom-in">
-                <img src="download%20(2).webp" class="w-full h-full object-contain" alt="Polka Girl" loading="lazy" decoding="async">
-                <div class="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent opacity-90 transition-opacity group-hover:opacity-100"></div>
-                <div class="absolute bottom-12 right-12 text-right">
-                    <span class="text-yellow-500 font-black uppercase text-xs tracking-widest en">Cartoon Art</span>
-                    <h3 class="text-4xl font-black mt-2">Polka Girl</h3>
-                </div>
-            </div>
-
-            <!-- 14. Old Man Concept -->
-            <div class="portfolio-card relative group aspect-[4/5] overflow-hidden rounded-[50px] reveal cursor-zoom-in" style="transition-delay: 0.2s;">
-                <img src="12323423.jfif" class="w-full h-full object-contain" alt="Master Cigar" loading="lazy" decoding="async">
-                <div class="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent opacity-90 transition-opacity group-hover:opacity-100"></div>
-                <div class="absolute bottom-12 right-12 text-right">
-                    <span class="text-yellow-500 font-black uppercase text-xs tracking-widest en">Legacy Concept</span>
-                    <h3 class="text-4xl font-black mt-2">Master Cigar</h3>
-                </div>
+            <div id="designGalleryAccordionContainer" class="space-y-4">
+                <!-- Image Gallery Accordion will be injected here by JS -->
             </div>
         </div>
     </section>
 
     <!-- Services Section -->
-    <section id="services" class="py-40 bg-neutral-950 px-6 border-y border-white/5">
-        <div class="max-w-7xl mx-auto">
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-1px bg-white/5 rounded-[40px] overflow-hidden reveal">
-                <div class="p-16 bg-black hover:bg-neutral-900 transition-all group">
-                    <div class="w-16 h-16 bg-yellow-500 rounded-2xl flex items-center justify-center text-black mb-10 group-hover:scale-110 transition-transform">
-                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-5.19 4.593-9.39 9.992-9.39 5.21 0 9.262 3.945 9.9 8.948"></path></svg>
+    <section id="services" class="py-32 md:py-64 bg-black px-6 overflow-hidden" style="perspective: 3000px;">
+        <div class="max-w-7xl mx-auto relative">
+            <!-- Decorative background element -->
+            <div class="absolute -top-60 left-1/2 -translate-x-1/2 w-[1000px] h-[1000px] bg-red-600/10 blur-[180px] rounded-full pointer-events-none legendary-frame"></div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 md:gap-16 relative z-10">
+                <!-- Service 1: Visual Identity -->
+                <div class="service-card-fire lightning-frame p-12 md:p-14 rounded-[3.5rem] group reveal-left">
+                    <div class="service-icon w-24 h-24 bg-gradient-to-br from-red-600 to-black rounded-[2rem] flex items-center justify-center text-white mb-10 transition-all duration-700 border border-red-500/20 shadow-2xl">
+                        <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-5.19 4.593-9.39 9.992-9.39 5.21 0 9.262 3.945 9.9 8.948"></path></svg>
                     </div>
-                    <h3 class="text-3xl font-black mb-6">هويات بصرية خالدة</h3>
-                    <p class="text-gray-400 text-lg leading-relaxed">نحول الأفكار إلى أيقونات بصرية تعيش في ذاكرة الجمهور للأبد.</p>
+                    <h3 class="text-4xl font-black mb-8 text-white leading-tight">هويات بصرية <br><span class="text-red-600">خالدة</span></h3>
+                    <p class="text-gray-500 text-xl leading-relaxed font-medium">نحول الأفكار إلى أيقونات بصرية تعيش في ذاكرة الجمهور للأبد.</p>
                 </div>
-                <div class="p-16 bg-black hover:bg-neutral-900 transition-all group">
-                    <div class="w-16 h-16 bg-yellow-500 rounded-2xl flex items-center justify-center text-black mb-10 group-hover:scale-110 transition-transform">
-                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 21h6l-.75-4M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                <!-- Service 2: Digital Interfaces -->
+                <div class="service-card-fire lightning-frame p-12 md:p-14 rounded-[3.5rem] group reveal" style="animation-delay: -1s;">
+                    <div class="service-icon w-24 h-24 bg-gradient-to-br from-red-600 to-black rounded-[2rem] flex items-center justify-center text-white mb-10 transition-all duration-700 border border-red-500/20 shadow-2xl">
+                        <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.75 17L9 21h6l-.75-4M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
                     </div>
-                    <h3 class="text-3xl font-black mb-6">واجهات رقمية فاخرة</h3>
-                    <p class="text-gray-400 text-lg leading-relaxed">بناء منصات رقمية تجمع بين الأناقة المطلقة وتجربة المستخدم السلسة.</p>
+                    <h3 class="text-4xl font-black mb-8 text-white leading-tight">واجهات رقمية <br><span class="text-red-600">فاخرة</span></h3>
+                    <p class="text-gray-500 text-xl leading-relaxed font-medium">بناء منصات رقمية تجمع بين الأناقة المطلقة وتجربة المستخدم السلسة.</p>
                 </div>
-                <div class="p-16 bg-black hover:bg-neutral-900 transition-all group">
-                    <div class="w-16 h-16 bg-yellow-500 rounded-2xl flex items-center justify-center text-black mb-10 group-hover:scale-110 transition-transform">
-                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                <!-- Service 3: Motion Graphics -->
+                <div class="service-card-fire lightning-frame p-12 md:p-14 rounded-[3.5rem] group reveal-right" style="animation-delay: -2s;">
+                    <div class="service-icon w-24 h-24 bg-gradient-to-br from-red-600 to-black rounded-[2rem] flex items-center justify-center text-white mb-10 transition-all duration-700 border border-red-500/20 shadow-2xl">
+                        <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
                     </div>
-                    <h3 class="text-3xl font-black mb-6">موشن جرافيك سينمائي</h3>
-                    <p class="text-gray-400 text-lg leading-relaxed">تحريك القصص بأسلوب بصري يخطف الأنفاس ويحقق النتائج.</p>
+                    <h3 class="text-4xl font-black mb-8 text-white leading-tight">موشن جرافيك <br><span class="text-red-600">سينمائي</span></h3>
+                    <p class="text-gray-500 text-xl leading-relaxed font-medium">تحريك القصص بأسلوب بصري يخطف الأنفاس ويحقق النتائج.</p>
                 </div>
             </div>
         </div>
     </section>
 
     <!-- Footer -->
-    <footer id="contact" class="py-40 bg-black relative">
-        <div class="max-w-7xl mx-auto px-6 text-center reveal">
-            <h2 class="text-4xl md:text-[120px] font-black mb-16 en tracking-tighter leading-none">START YOUR <br> <span class="text-gradient">LEGACY.</span></h2>
-            
-            <!-- Legendary Contact Form -->
-            <div class="max-w-3xl mx-auto glass p-10 md:p-16 rounded-[3rem] border-white/5 shadow-[0_0_50px_rgba(0,0,0,0.8)] relative overflow-hidden">
-                <div class="absolute -top-24 -right-24 w-48 h-48 bg-red-600/10 blur-[80px]"></div>
-                
-                <form id="contactForm" class="grid grid-cols-1 md:grid-cols-2 gap-6 text-right">
-                    <div class="space-y-2">
-                        <label class="text-xs font-black uppercase tracking-widest text-gray-500 pr-4">الاسم الكامل</label>
-                        <input type="text" id="userName" required class="input-cyber en" placeholder="Your Name">
+    <footer id="contact" class="py-32 md:py-48 bg-black relative" style="perspective: 1500px;">
+        <div class="max-w-6xl mx-auto px-6 reveal"> 
+            <div class="legendary-container p-8 md:p-20 rounded-[4rem] relative overflow-hidden border-t-2 border-white/5">
+                <!-- Header Inside Container -->
+                <div class="text-center mb-24">
+                    <h2 class="text-5xl md:text-8xl font-black en tracking-tighter leading-none mb-6 text-gradient uppercase">Craft Your <br><span class="text-white">Legacy.</span></h2>
+                    <p class="text-yellow-500 text-sm md:text-lg uppercase tracking-[0.4em] font-bold neon-text mb-4">The Nexus of Creation • مركز القيادة الإبداعية</p>
+                    <p class="text-gray-400 text-xl font-bold">اطلب ما تريد وسوف يتم التواصل معك</p>
+                </div>
+
+                <form id="contactForm" class="flex flex-col gap-20">
+                    <!-- Phase 1: Identity & Mission -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                        <div class="space-y-8">
+                            <div class="legendary-border-right pr-6 mb-10">
+                                <h3 class="text-3xl font-black text-white uppercase italic tracking-wider">01. الهوية والمهمة</h3>
+                                <p class="text-gray-500 text-sm font-medium">أدخل بيانات المبدع المسؤول عن هذه الرؤية</p>
+                            </div>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                <div class="space-y-2"><label class="text-[10px] font-black text-red-500 uppercase tracking-widest mr-4">الاسم بالكامل</label><input type="text" id="userName" required class="input-cyber font-bold" placeholder="NAME"></div>
+                                <div class="space-y-2"><label class="text-[10px] font-black text-red-500 uppercase tracking-widest mr-4">رقم التواصل</label><input type="tel" id="userPhone" required class="input-cyber font-bold" placeholder="PHONE"></div>
+                                <div class="space-y-2"><label class="text-[10px] font-black text-red-500 uppercase tracking-widest mr-4">العمر / الخبرة</label><input type="number" id="userAge" required class="input-cyber font-bold" placeholder="AGE"></div>
+                                <div class="space-y-2"><label class="text-[10px] font-black text-red-500 uppercase tracking-widest mr-4">عنوان الملحمة</label><input type="text" id="projectName" required class="input-cyber font-bold" placeholder="PROJECT"></div>
+                            </div>
+                        </div>
+
+                        <div class="space-y-8">
+                            <div class="legendary-border-right pr-6 mb-10">
+                                <h3 class="text-3xl font-black text-white uppercase italic tracking-wider">02. جوهر الرؤية</h3>
+                                <p class="text-gray-500 text-sm font-medium">اشرح لنا باختصار عظمة ما تود ابتكاره</p>
+                            </div>
+                            <textarea id="userMessage" required rows="6" class="input-cyber font-bold resize-none" placeholder="اكتب ميثاق مشروعك هنا..."></textarea>
+                        </div>
                     </div>
-                    <div class="space-y-2">
-                        <label class="text-xs font-black uppercase tracking-widest text-gray-500 pr-4">رقم الهاتف</label>
-                        <input type="tel" id="userPhone" required class="input-cyber en" placeholder="+20 ...">
+
+                    <!-- Phase 2: Tool Selection & Summary -->
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-12 items-start">
+                        <!-- Left: Suggestions -->
+                        <div class="lg:col-span-2 space-y-6">
+                            <div class="legendary-border-right pr-6 mb-8">
+                                <h3 class="text-3xl font-black text-white uppercase italic tracking-wider">03. أدوات الإبداع</h3>
+                                <p class="text-gray-500 text-sm font-medium">اختر العناصر التي ستشكل هويتك الأسطورية</p>
+                            </div>
+                            <div id="suggestionsAccordion" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <!-- Accordion items will be injected here by JS -->
+                            </div>
+                        </div>
+
+                        <!-- Right: Manifesto Summary -->
+                        <div class="lg:col-span-1 glass !bg-zinc-950/50 p-8 rounded-[2.5rem] border-white/5 shadow-inner lg:sticky lg:top-32">
+                            <h4 class="text-xs font-black text-yellow-500 tracking-[0.3em] uppercase mb-6 text-center">Manifesto Summary</h4>
+                            <div id="selectedServicesDisplay" class="flex flex-wrap gap-2 min-h-[200px] content-start">
+                                <!-- Chips will appear here -->
+                            </div>
+                        </div>
                     </div>
-                    <div class="space-y-2">
-                        <label class="text-xs font-black uppercase tracking-widest text-gray-500 pr-4">العمر</label>
-                        <input type="number" id="userAge" required class="input-cyber en" placeholder="Age">
-                    </div>
-                    <div class="space-y-2">
-                        <label class="text-xs font-black uppercase tracking-widest text-gray-500 pr-4">اسم المشروع</label>
-                        <input type="text" id="projectName" required class="input-cyber en" placeholder="Project Title">
-                    </div>
-                    <div class="md:col-span-2 space-y-2">
-                        <label class="text-xs font-black uppercase tracking-widest text-gray-500 pr-4">ماذا يدور في عقلك؟</label>
-                        <textarea id="userMessage" required rows="4" class="input-cyber en" placeholder="Tell us about your vision..."></textarea>
-                    </div>
-                    
-                    <div class="md:col-span-2 pt-6">
-                        <button type="submit" id="submitBtn" class="w-full text-white font-black nav-btn-2600 btn-active flex items-center justify-center gap-4 group">
-                            <span>إرسال للشركاء</span>
-                            <svg class="w-5 h-5 group-hover:translate-x-2 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"></path></svg>
+
+                    <!-- Final Action: Baptism -->
+                    <div class="pt-12 border-t border-white/5">
+                        <button type="submit" id="submitBtn" class="w-full bg-red-600 hover:bg-red-700 text-white font-black text-3xl md:text-5xl py-10 rounded-[2rem] transition-all duration-500 shadow-[0_20px_80px_rgba(255,46,46,0.3)] hover:shadow-[0_20px_100px_rgba(255,46,46,0.5)] flex items-center justify-center gap-8 group">
+                            <span class="italic tracking-tighter uppercase">تعميد المشروع الآن</span>
+                            <svg class="w-12 h-12 group-hover:translate-x-4 transition-transform duration-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
                         </button>
+                        <p class="text-center text-gray-600 text-[10px] mt-8 tracking-[0.8em] uppercase">VisionCraft Elite Protocol v2.6</p>
                     </div>
                 </form>
             </div>
@@ -813,6 +924,13 @@
         });
 
         // Navbar Smart Scroll Logic
+        window.addEventListener('scroll', () => {
+            const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+            const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            const scrolled = (winScroll / height) * 100;
+            document.getElementById("scroll-progress").style.width = scrolled + "%";
+        });
+
         let lastScrollY = window.scrollY;
         window.addEventListener('scroll', () => {
             const nav = document.getElementById('navbar');
@@ -846,23 +964,25 @@
             });
         }, observerOptions);
 
-        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+        document.querySelectorAll('.reveal, .reveal-left, .reveal-right').forEach(el => observer.observe(el));
 
         // Parallax Effect for Images
         let parallaxElements = document.querySelectorAll('.portfolio-card img');
-        let currentScroll = 0;
-        let targetScroll = 0;
-        const parallaxSpeed = 0.03; // تقليل السرعة ليكون التأثير أكثر نعومة
-
+        const parallaxSpeed = 0.12; // Increased for that "fast" scroll feeling you requested
+        
         function animateParallax() {
-            targetScroll = window.scrollY;
-            currentScroll += (targetScroll - currentScroll) * 0.1; // Smooth damping
+            const scrollY = window.scrollY || window.pageYOffset;
             parallaxElements.forEach(img => {
-                img.style.transform = `translate3d(0, ${currentScroll * parallaxSpeed}px, 0) scale(1.15)`;
+                const parent = img.parentElement;
+                const rect = parent.getBoundingClientRect();
+                if (rect.top < window.innerHeight && rect.bottom > 0) {
+                    // Enhanced movement logic for speed and container-fill
+                    const movement = (rect.top * parallaxSpeed);
+                    img.style.transform = `translate3d(0, ${movement}px, 0) scale(1.25)`;
+                }
             });
-            requestAnimationFrame(animateParallax);
         }
-        animateParallax();
+        window.addEventListener('scroll', animateParallax);
 
         // Legendary Lightbox Logic
         const lightbox = document.getElementById('lightbox');
@@ -886,6 +1006,215 @@
         });
 
         [lightboxClose, lightboxOverlay].forEach(el => el.addEventListener('click', closeLightbox));
+
+        // Render 30 Suggestions
+        const categorizedSuggestions = {
+            "الهوية البصرية والبراندنج": [
+                "تصميم شعار احترافي", "هوية بصرية متكاملة", "براندنج (Branding) كامل",
+                "تصميم كروت عمل", "ورق مراسلات رسمي", "هوية بصرية لمتاجر"
+            ],
+            "التصميم الجرافيكي والإعلانات": [
+                "بوسترات سوشيال ميديا", "تصميم أغلفة سوشيال", "تصميم فلترات سناب",
+                "تصميم تيشرتات", "لوحات إعلانية ضخمة", "كتالوج منتجات فاخر",
+                "تصميم منيو (Menu)", "إنفوجرافيك تعليمي", "تصميم كتب وروايات",
+                "تصميم عروض بوربوينت"
+            ],
+            "معالجة وتعديل الصور": [
+                "تعديل صور فوتوغرافية", "دمج صور خيالي", "تحسين جودة الصور",
+                "رسم شخصيات (Character)"
+            ],
+            "الواجهات الرقمية وتجربة المستخدم": [
+                "تصميم واجهات مواقع", "تصميم تطبيقات موبايل"
+            ],
+            "الموشن جرافيك والفيديو": [
+                "موشن جرافيك سينمائي", "انيميشن 2D", "مونتاج فيديوهات",
+                "مقدمة فيديو (Intro)"
+            ],
+            "خدمات خاصة واستشارية": [
+                "عرض الـ 100 ج (تصميمات)", "تصميم مذكرات تعليمية", "شرح إنتاج مذكرات",
+                "استشارة تصميمية"
+            ]
+        };
+
+        const accordionContainer = document.getElementById('suggestionsAccordion');
+        const selectedServicesDisplay = document.getElementById('selectedServicesDisplay');
+        let selectedServices = new Set();
+
+        function updateSelectedServicesDisplay() {
+            selectedServicesDisplay.innerHTML = '<span class="text-gray-400 text-sm font-bold w-full mb-3 text-right border-b border-white/5 pb-2">الخدمات المختارة:</span>';
+            if (selectedServices.size === 0) {
+                selectedServicesDisplay.innerHTML += '<span class="text-gray-600 text-sm">لا توجد خدمات مختارة بعد.</span>';
+            } else { // Only render chips if services are selected
+                selectedServices.forEach(service => {
+                    const chip = document.createElement('span');
+                    chip.className = 'bg-red-600/10 text-red-400 text-xs px-4 py-2 rounded-full border border-red-600/20 flex items-center gap-2';
+                    chip.innerHTML = `
+                        <span>${service}</span>
+                        <button type="button" class="selected-chip-close text-red-300 hover:text-red-500 transition-colors" data-service="${service}">
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                        </button>
+                    `;
+                    
+                    // Add event listener to the close button
+                    chip.querySelector('.selected-chip-close').addEventListener('click', (e) => {
+                        const serviceToRemove = e.currentTarget.dataset.service;
+                        selectedServices.delete(serviceToRemove);
+                        updateSelectedServicesDisplay();
+                        // Also unselect the chip in the accordion if it's still visible
+                        const accordionChip = document.querySelector(`.suggestion-chip[data-service="${serviceToRemove}"]`);
+                        if (accordionChip) accordionChip.classList.remove('selected');
+                    });
+                    selectedServicesDisplay.appendChild(chip);
+                });
+            }
+        }
+
+        // New Image Gallery Data
+        const imageGalleryData = Array.from({ length: 57 }, (_, i) => `1 (${i + 1}).jpeg`);
+
+        // --- Render Image Gallery Accordion Item First ---
+        const designGalleryAccordionContainer = document.getElementById('designGalleryAccordionContainer'); // Get the new container
+        const imageGalleryItemDiv = document.createElement('div'); // This will be the single accordion item for the gallery
+        imageGalleryItemDiv.className = 'accordion-item border-2 border-yellow-500/20 rounded-[2rem] overflow-hidden shadow-2xl transition-all duration-500 hover:border-yellow-500/40';
+
+        const imageGalleryHeaderDiv = document.createElement('div');
+        imageGalleryHeaderDiv.className = 'accordion-header bg-gradient-to-r from-black via-zinc-900 to-black !py-8 !px-10';
+        imageGalleryHeaderDiv.innerHTML = `
+            <span class="text-3xl md:text-5xl font-black text-gradient italic tracking-tighter uppercase">Masterpiece Archives</span>
+            <svg class="w-8 h-8 accordion-icon text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path></svg>
+        `;
+        imageGalleryItemDiv.appendChild(imageGalleryHeaderDiv);
+
+        const imageGalleryContentDiv = document.createElement('div');
+        imageGalleryContentDiv.className = 'accordion-content transition-all duration-500';
+        const imageGridContainer = document.createElement('div');
+        imageGridContainer.className = 'grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6 p-8 bg-zinc-950'; // Improved grid spacing
+
+        imageGalleryData.forEach((imageSrc, idx) => {
+            const imgWrapper = document.createElement('div');
+            imgWrapper.className = 'relative group aspect-[3/4] overflow-hidden rounded-2xl cursor-zoom-in border border-white/10 hover:border-yellow-500/50 transition-colors duration-500 bg-zinc-900';
+            imgWrapper.innerHTML = ` 
+                <img src="${imageSrc}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt="تصميم أسطوري" loading="lazy">
+                <div class="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent opacity-80 group-hover:opacity-40 transition-all duration-500"></div>
+                <div class="absolute bottom-4 right-4 text-right transform translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500">
+                    <span class="text-[10px] text-yellow-500 font-bold tracking-widest en">VISIONCRAFT ELITE</span>
+                    <p class="text-white font-black text-xs">PIECE #${idx + 1}</p>
+                </div>
+            `;
+            imgWrapper.onclick = () => openLightbox(imageSrc);
+            imageGridContainer.appendChild(imgWrapper);
+        });
+
+        imageGalleryContentDiv.appendChild(imageGridContainer);
+        imageGalleryItemDiv.appendChild(imageGalleryContentDiv);
+        designGalleryAccordionContainer.appendChild(imageGalleryItemDiv); // Append to the new container
+
+        imageGalleryHeaderDiv.addEventListener('click', () => {
+            const content = imageGalleryItemDiv.querySelector('.accordion-content');
+            const isActive = imageGalleryItemDiv.classList.contains('active');
+
+            if (isActive) {
+                content.style.maxHeight = content.scrollHeight + "px";
+                requestAnimationFrame(() => {
+                    content.style.maxHeight = '0px';
+                    imageGalleryItemDiv.classList.remove('active');
+                });
+            } else {
+                imageGalleryItemDiv.classList.add('active');
+                content.style.maxHeight = content.scrollHeight + "px";
+                content.addEventListener('transitionend', function handler() {
+                    if (imageGalleryItemDiv.classList.contains('active')) {
+                        content.style.maxHeight = 'none';
+                    }
+                    content.removeEventListener('transitionend', handler);
+                });
+            }
+        });
+
+        // --- Render Service Suggestions Accordion Items ---
+        // --- Render Service Suggestions Accordion Items ---
+        for (const category in categorizedSuggestions) {
+            const itemDiv = document.createElement('div');
+            itemDiv.className = 'accordion-item';
+
+            const headerDiv = document.createElement('div');
+            headerDiv.className = 'accordion-header';
+            headerDiv.innerHTML = `
+                <span>${category}</span>
+                <svg class="w-5 h-5 accordion-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+            `;
+            itemDiv.appendChild(headerDiv);
+
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'accordion-content transition-all duration-500';
+            
+            headerDiv.addEventListener('click', () => {
+                const allItems = accordionContainer.querySelectorAll('.accordion-item');
+                const isOpening = !itemDiv.classList.contains('active');
+
+                // إغلاق أي قائمة أخرى مفتوحة لتصغير الحاوية
+                allItems.forEach(otherItem => {
+                    if (otherItem !== itemDiv && otherItem.classList.contains('active')) {
+                        otherItem.querySelector('.accordion-content').style.maxHeight = '0px';
+                        otherItem.classList.remove('active');
+                    }
+                });
+            });
+
+            const chipsContainer = document.createElement('div');
+            chipsContainer.className = 'flex flex-wrap gap-3 pb-4 justify-center'; /* Centered chips */
+
+            categorizedSuggestions[category].forEach(suggestion => {
+                const chip = document.createElement('div');
+                chip.className = 'suggestion-chip';
+                chip.setAttribute('data-service', suggestion); // Add data attribute for easy lookup
+                chip.textContent = suggestion;
+                chip.onclick = () => {
+                    if (selectedServices.has(suggestion)) {
+                        selectedServices.delete(suggestion);
+                        chip.classList.remove('selected');
+                    } else {
+                        chip.classList.add('celebrate');
+                        chip.addEventListener('animationend', function handler() {
+                            chip.classList.remove('celebrate');
+                            chip.removeEventListener('animationend', handler);
+                        });
+                        selectedServices.add(suggestion);
+                        chip.classList.add('selected');
+                    }
+                    updateSelectedServicesDisplay();
+                };
+                chipsContainer.appendChild(chip);
+            });
+
+            contentDiv.appendChild(chipsContainer);
+            itemDiv.appendChild(contentDiv);
+            accordionContainer.appendChild(itemDiv);
+
+            headerDiv.addEventListener('click', () => {
+                const content = itemDiv.querySelector('.accordion-content');
+                const isActive = itemDiv.classList.contains('active');
+
+                if (isActive) {
+                    content.style.maxHeight = content.scrollHeight + "px";
+                    requestAnimationFrame(() => {
+                        content.style.maxHeight = '0px';
+                        itemDiv.classList.remove('active');
+                    });
+                } else {
+                    itemDiv.classList.add('active');
+                    content.style.maxHeight = content.scrollHeight + "px";
+                    content.addEventListener('transitionend', function handler() {
+                        if (itemDiv.classList.contains('active')) {
+                            content.style.maxHeight = 'none';
+                        }
+                        content.removeEventListener('transitionend', handler);
+                    });
+                }
+            });
+        }
+
+        updateSelectedServicesDisplay(); // Initialize display
     </script>
 
     <!-- Firebase Integration -->
@@ -915,7 +1244,7 @@
         contactForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             submitBtn.disabled = true;
-            submitBtn.innerHTML = "جاري الإرسال...";
+            submitBtn.innerHTML = "جاري إرسال رؤيتك...";
 
             const formData = {
                 name: document.getElementById('userName').value,
@@ -923,6 +1252,7 @@
                 age: document.getElementById('userAge').value,
                 project: document.getElementById('projectName').value,
                 message: document.getElementById('userMessage').value,
+                services: Array.from(selectedServices),
                 timestamp: Date.now()
             };
 
@@ -943,6 +1273,7 @@
                 }, 5000);
 
                 contactForm.reset();
+                selectedServices.clear(); // Clear selected services after submission
             } catch (error) {
                 console.error(error);
                 alert('عذراً، حدث خطأ أثناء الإرسال. حاول مرة أخرى.');
@@ -950,6 +1281,7 @@
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = '<span>إرسال للشركاء</span>';
             }
+            updateSelectedServicesDisplay(); // Update display after form reset
         });
 
         document.getElementById('closeToast').addEventListener('click', () => {
